@@ -46,7 +46,9 @@ function App() {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(outputHtml);
+    navigator.clipboard.writeText(outputHtml).then(() => {
+      alert("Minified HTML copied to clipboard!");
+    });
   };
 
   const handleReset = () => {
@@ -71,6 +73,14 @@ function App() {
       ...prevOptions,
       [name]: checked,
     }));
+  };
+
+  const handleDownload = () => {
+    const blob = new Blob([outputHtml], { type: "text/html" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "minified.html";
+    link.click();
   };
 
   return (
@@ -226,22 +236,23 @@ function App() {
           ></textarea>
         </motion.div>
 
-        {/* Download Button */}
+        {/* Action Buttons for Output */}
         {outputHtml && !loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="mt-4 text-center"
-          >
-            <a
-              href={`data:text/html;charset=utf-8,${encodeURIComponent(outputHtml)}`}
-              download="minified.html"
-              className="flex justify-center items-center gap-2 bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+          <div className="mt-4 flex justify-between gap-4">
+            <motion.button
+              onClick={handleCopy}
+              className="flex items-center gap-2 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+            >
+              <FaRegCopy /> Copy Output
+            </motion.button>
+
+            <motion.button
+              onClick={handleDownload}
+              className="flex items-center gap-2 bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
             >
               <FaRegArrowAltCircleDown /> Download Minified HTML
-            </a>
-          </motion.div>
+            </motion.button>
+          </div>
         )}
 
         {/* Loading State */}
