@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { minify } from "html-minifier-terser";
 import { FaRegCopy, FaPlay, FaRegArrowAltCircleDown, FaTimes } from "react-icons/fa";
 import { motion } from "framer-motion";
