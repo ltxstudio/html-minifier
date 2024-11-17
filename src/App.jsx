@@ -1,265 +1,262 @@
-import React, { useState } from "react";
-import { minify } from "html-minifier-terser";
-import { FaRegCopy, FaPlay, FaRegArrowAltCircleDown, FaTimes } from "react-icons/fa";
-import { motion } from "framer-motion";
+import { useState } from 'react';
+import { minify } from 'html-minifier';
+import { FaFileCode, FaQuestionCircle, FaInfoCircle, FaCopy, FaUpload } from 'react-icons/fa';
+import { motion } from 'framer-motion';
 
 function App() {
-  const [inputHtml, setInputHtml] = useState("");
-  const [outputHtml, setOutputHtml] = useState("");
+  const [inputHTML, setInputHTML] = useState('');
+  const [outputHTML, setOutputHTML] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
+  const [showFeatures, setShowFeatures] = useState(false);
+  const [showFAQ, setShowFAQ] = useState(false);
+
+  // Minification options state
   const [options, setOptions] = useState({
-    collapseWhitespace: true,
     removeComments: true,
-    removeRedundantAttributes: true,
-    useShortDoctype: true,
-    removeEmptyAttributes: true,
-    collapseInlineStyles: true,
-    preserveLineBreaks: false,
-    minifyCSS: true,
+    collapseWhitespace: true,
     minifyJS: true,
+    minifyCSS: true,
+    removeEmptyAttributes: false,
   });
 
-  const handleInputChange = (e) => {
-    setInputHtml(e.target.value);
+  // Handle input change
+  const handleInputChange = (e) => setInputHTML(e.target.value);
+
+  // Minification process
+  const handleMinifyClick = () => {
+    setLoading(true);
+    const minified = minify(inputHTML, {
+      removeComments: options.removeComments,
+      collapseWhitespace: options.collapseWhitespace,
+      minifyJS: options.minifyJS,
+      minifyCSS: options.minifyCSS,
+      removeEmptyAttributes: options.removeEmptyAttributes,
+    });
+    setOutputHTML(minified);
+    setLoading(false);
   };
 
-  const handleMinify = () => {
-    setLoading(true);
-    try {
-      const minified = minify(inputHtml, {
-        collapseWhitespace: options.collapseWhitespace,
-        removeComments: options.removeComments,
-        removeRedundantAttributes: options.removeRedundantAttributes,
-        useShortDoctype: options.useShortDoctype,
-        removeEmptyAttributes: options.removeEmptyAttributes,
-        collapseInlineStyles: options.collapseInlineStyles,
-        preserveLineBreaks: options.preserveLineBreaks,
-        minifyCSS: options.minifyCSS,
-        minifyJS: options.minifyJS,
-      });
-      setOutputHtml(minified);
-    } catch (error) {
-      setOutputHtml("Error minifying HTML");
-    } finally {
-      setLoading(false);
+  // Copy to Clipboard
+  const handleCopy = () => {
+    navigator.clipboard.writeText(outputHTML);
+    alert('Copied to clipboard!');
+  };
+
+  // Handle file upload
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setInputHTML(reader.result);
+      };
+      reader.readAsText(file);
     }
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(outputHtml).then(() => {
-      alert("Minified HTML copied to clipboard!");
-    });
-  };
-
-  const handleReset = () => {
-    setInputHtml("");
-    setOutputHtml("");
-    setOptions({
-      collapseWhitespace: true,
-      removeComments: true,
-      removeRedundantAttributes: true,
-      useShortDoctype: true,
-      removeEmptyAttributes: true,
-      collapseInlineStyles: true,
-      preserveLineBreaks: false,
-      minifyCSS: true,
-      minifyJS: true,
-    });
-  };
-
-  const handleOptionChange = (e) => {
-    const { name, checked } = e.target;
-    setOptions((prevOptions) => ({
-      ...prevOptions,
-      [name]: checked,
-    }));
-  };
-
-  const handleDownload = () => {
-    const blob = new Blob([outputHtml], { type: "text/html" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "minified.html";
-    link.click();
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg p-6 max-w-4xl w-full">
-        <h1 className="text-3xl font-bold text-center text-gray-900 mb-6">HTML Minifier Tool</h1>
-
-        {/* Input HTML */}
-        <motion.div
-          className="relative"
+    <div className="bg-gray-100 min-h-screen font-sans">
+      <div className="container mx-auto p-4">
+        <motion.header
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 1 }}
+          className="text-center py-6"
         >
-          <textarea
-            value={inputHtml}
+          <h1 className="text-3xl font-bold text-blue-600">HTML Minifier Tool</h1>
+          <p className="text-gray-600 mt-2">Paste your HTML code below and get a minified version</p>
+        </motion.header>
+
+        {/* Minifier options */}
+        <div className="flex flex-wrap justify-center space-x-4 mb-6">
+          <button
+            className="flex items-center bg-blue-500 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-600"
+            onClick={() => setShowAbout(!showAbout)}
+          >
+            <FaInfoCircle className="mr-2" />
+            About
+          </button>
+          <button
+            className="flex items-center bg-green-500 text-white px-6 py-2 rounded-lg shadow hover:bg-green-600"
+            onClick={() => setShowFeatures(!showFeatures)}
+          >
+            <FaFileCode className="mr-2" />
+            Features
+          </button>
+          <button
+            className="flex items-center bg-yellow-500 text-white px-6 py-2 rounded-lg shadow hover:bg-yellow-600"
+            onClick={() => setShowFAQ(!showFAQ)}
+          >
+            <FaQuestionCircle className="mr-2" />
+            FAQ
+          </button>
+        </div>
+
+        {/* Minifier options */}
+        <div className="flex justify-center mb-6 space-x-4">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={options.removeComments}
+              onChange={() =>
+                setOptions({ ...options, removeComments: !options.removeComments })
+              }
+              className="mr-2"
+            />
+            Remove Comments
+          </label>
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={options.collapseWhitespace}
+              onChange={() =>
+                setOptions({ ...options, collapseWhitespace: !options.collapseWhitespace })
+              }
+              className="mr-2"
+            />
+            Collapse Whitespace
+          </label>
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={options.minifyJS}
+              onChange={() => setOptions({ ...options, minifyJS: !options.minifyJS })}
+              className="mr-2"
+            />
+            Minify JS
+          </label>
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={options.minifyCSS}
+              onChange={() => setOptions({ ...options, minifyCSS: !options.minifyCSS })}
+              className="mr-2"
+            />
+            Minify CSS
+          </label>
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={options.removeEmptyAttributes}
+              onChange={() =>
+                setOptions({ ...options, removeEmptyAttributes: !options.removeEmptyAttributes })
+              }
+              className="mr-2"
+            />
+            Remove Empty Attributes
+          </label>
+        </div>
+
+        {/* File upload */}
+        <div className="flex justify-center mb-6">
+          <input
+            type="file"
+            onChange={handleFileUpload}
+            className="file:border file:bg-blue-500 file:text-white file:px-4 file:py-2 file:rounded-lg"
+          />
+        </div>
+
+        {/* Input and Output */}
+        <div className="flex flex-col lg:flex-row justify-center gap-6 mb-6">
+          <motion.textarea
+            value={inputHTML}
             onChange={handleInputChange}
-            placeholder="Enter HTML here"
-            rows={10}
-            className="w-full p-4 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-          ></textarea>
-        </motion.div>
+            rows="10"
+            className="p-4 border border-gray-300 rounded-lg w-full lg:w-1/2 focus:outline-none"
+            placeholder="Paste HTML code here..."
+          ></motion.textarea>
 
-        {/* Minifier Options */}
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold text-gray-900">Minifier Options</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
-            <label className="flex items-center text-gray-700">
-              <input
-                type="checkbox"
-                name="collapseWhitespace"
-                checked={options.collapseWhitespace}
-                onChange={handleOptionChange}
-                className="mr-2"
-              />
-              Collapse Whitespace
-            </label>
-            <label className="flex items-center text-gray-700">
-              <input
-                type="checkbox"
-                name="removeComments"
-                checked={options.removeComments}
-                onChange={handleOptionChange}
-                className="mr-2"
-              />
-              Remove Comments
-            </label>
-            <label className="flex items-center text-gray-700">
-              <input
-                type="checkbox"
-                name="removeRedundantAttributes"
-                checked={options.removeRedundantAttributes}
-                onChange={handleOptionChange}
-                className="mr-2"
-              />
-              Remove Redundant Attributes
-            </label>
-            <label className="flex items-center text-gray-700">
-              <input
-                type="checkbox"
-                name="useShortDoctype"
-                checked={options.useShortDoctype}
-                onChange={handleOptionChange}
-                className="mr-2"
-              />
-              Use Short Doctype
-            </label>
-            <label className="flex items-center text-gray-700">
-              <input
-                type="checkbox"
-                name="removeEmptyAttributes"
-                checked={options.removeEmptyAttributes}
-                onChange={handleOptionChange}
-                className="mr-2"
-              />
-              Remove Empty Attributes
-            </label>
-            <label className="flex items-center text-gray-700">
-              <input
-                type="checkbox"
-                name="collapseInlineStyles"
-                checked={options.collapseInlineStyles}
-                onChange={handleOptionChange}
-                className="mr-2"
-              />
-              Collapse Inline Styles
-            </label>
-            <label className="flex items-center text-gray-700">
-              <input
-                type="checkbox"
-                name="preserveLineBreaks"
-                checked={options.preserveLineBreaks}
-                onChange={handleOptionChange}
-                className="mr-2"
-              />
-              Preserve Line Breaks
-            </label>
-            <label className="flex items-center text-gray-700">
-              <input
-                type="checkbox"
-                name="minifyCSS"
-                checked={options.minifyCSS}
-                onChange={handleOptionChange}
-                className="mr-2"
-              />
-              Minify CSS
-            </label>
-            <label className="flex items-center text-gray-700">
-              <input
-                type="checkbox"
-                name="minifyJS"
-                checked={options.minifyJS}
-                onChange={handleOptionChange}
-                className="mr-2"
-              />
-              Minify JS
-            </label>
-          </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-center w-full lg:w-1/2"
+          >
+            <button
+              className="bg-blue-500 text-white py-3 px-6 rounded-lg shadow-lg mb-4 hover:bg-blue-600"
+              onClick={handleMinifyClick}
+              disabled={loading}
+            >
+              {loading ? 'Minifying...' : 'Minify HTML'}
+            </button>
+
+            <div className="relative">
+              <textarea
+                value={outputHTML}
+                readOnly
+                rows="10"
+                className="p-4 border border-gray-300 rounded-lg w-full focus:outline-none"
+                placeholder="Minified HTML will appear here"
+              ></textarea>
+              <button
+                className="absolute top-2 right-2 bg-green-500 text-white p-2 rounded-lg shadow-md hover:bg-green-600"
+                onClick={handleCopy}
+              >
+                <FaCopy />
+              </button>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="mt-4 flex justify-between gap-4">
-          <motion.button
-            onClick={handleMinify}
-            className="flex items-center gap-2 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-            whileTap={{ scale: 0.95 }}
+        {/* About Section */}
+        {showAbout && (
+          <motion.section
+            className="bg-white p-6 rounded-lg shadow-lg mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
           >
-            <FaPlay /> Minify
-          </motion.button>
-
-          <motion.button
-            onClick={handleReset}
-            className="flex items-center gap-2 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
-            whileTap={{ scale: 0.95 }}
-          >
-            <FaTimes /> Reset
-          </motion.button>
-        </div>
-
-        {/* Minified HTML Output */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="mt-6"
-        >
-          <textarea
-            value={outputHtml}
-            readOnly
-            placeholder="Minified HTML will appear here"
-            rows={10}
-            className="w-full p-4 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-          ></textarea>
-        </motion.div>
-
-        {/* Action Buttons for Output */}
-        {outputHtml && !loading && (
-          <div className="mt-4 flex justify-between gap-4">
-            <motion.button
-              onClick={handleCopy}
-              className="flex items-center gap-2 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-            >
-              <FaRegCopy /> Copy Output
-            </motion.button>
-
-            <motion.button
-              onClick={handleDownload}
-              className="flex items-center gap-2 bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
-            >
-              <FaRegArrowAltCircleDown /> Download Minified HTML
-            </motion.button>
-          </div>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">About</h2>
+            <p className="text-gray-600">
+              The HTML Minifier Tool allows you to paste your HTML code and receive a cleaner, minified version. It's perfect for
+              web developers who want to optimize their HTML code for performance.
+            </p>
+          </motion.section>
         )}
 
-        {/* Loading State */}
-        {loading && (
-          <div className="mt-4 flex justify-center items-center">
-            <div className="animate-spin inline-block w-8 h-8 border-4 border-solid border-current border-t-transparent rounded-full"></div>
-          </div>
+        {/* Features Section */}
+        {showFeatures && (
+          <motion.section
+            className="bg-white p-6 rounded-lg shadow-lg mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">Features</h2>
+            <ul className="list-disc pl-5 text-gray-600">
+              <li>Minify HTML, CSS, and JavaScript</li>
+              <li>Remove comments and unnecessary spaces</li>
+              <li>Customizable minifier options</li>
+              <li>Easy-to-use interface with real-time results</li>
+              <li>Fast and responsive design</li>
+              <li>Free and accessible for everyone</li>
+            </ul>
+          </motion.section>
+        )}
+
+        {/* FAQ Section */}
+        {showFAQ && (
+          <motion.section
+            className="bg-white p-6 rounded-lg shadow-lg mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">FAQ</h2>
+            <div className="space-y-4 text-gray-600">
+              <div>
+                <h3 className="font-semibold">How does the tool work?</h3>
+                <p>
+                  Simply paste your HTML code into the input box, press "Minify HTML", and the tool will generate a compact version of your HTML code.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold">Is it free to use?</h3>
+                <p>Yes! This tool is completely free and does not require any registration.</p>
+              </div>
+            </div>
+          </motion.section>
         )}
       </div>
     </div>
