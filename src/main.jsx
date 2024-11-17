@@ -1,10 +1,12 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';  // Import your App component
+import './index.css';  // Make sure to import Tailwind CSS here if you have global styles
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
+// Rendering the App component into the root div in your HTML
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
     <App />
-  </StrictMode>,
-)
+  </React.StrictMode>
+);
