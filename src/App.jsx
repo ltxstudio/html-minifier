@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { minify } from "html-minifier-terser";
 import { FaRegCopy, FaPlay, FaRegArrowAltCircleDown, FaTimes } from "react-icons/fa";
 import { motion } from "framer-motion";
@@ -257,8 +257,8 @@ function App() {
 
         {/* Loading State */}
         {loading && (
-          <div className="mt-4 flex justify-center items-center text-blue-500">
-            <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 border-solid border-current border-t-transparent rounded-full"></div>
+          <div className="mt-4 flex justify-center items-center">
+            <div className="animate-spin inline-block w-8 h-8 border-4 border-solid border-current border-t-transparent rounded-full"></div>
           </div>
         )}
       </div>
