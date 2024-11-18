@@ -4,7 +4,6 @@ import { FaArrowRight, FaArrowLeft, FaClipboard } from 'react-icons/fa';
 import About from './components/About';
 import Features from './components/Features';
 import WhyUseSelection from './components/WhyUseSelection';
-import './App.css';
 
 const escapeHtml = (unsafe) => {
     return unsafe
